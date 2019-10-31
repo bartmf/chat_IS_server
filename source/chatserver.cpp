@@ -32,14 +32,16 @@ void chatServer::newClient()
 void chatServer::connectToDB()
 {
     Database = QSqlDatabase::addDatabase("QSQLITE");
-    Database.setDatabaseName("//home/bart/Документы/GitHub/chat_IS/db/chat.db");  //("C:\\Users\\User\\Documents\\chat_IS\\db\\chat.db");
+    Database.setDatabaseName("//home/bart/Документы/GitHub/chat_IS_server/db/chat.db");  //("C:\\Users\\User\\Documents\\chat_IS\\db\\chat.db");
 
     if (!Database.open())
     {
+        emit signal_dataBaseError(Database.lastError().text());
         qDebug() << Database.lastError().text();
     }
     else
     {
         qDebug() << "CONNECTED TO DB!!";
+        emit signal_databaseOpen();
     }
 }

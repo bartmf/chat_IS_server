@@ -33,6 +33,8 @@ signals:
     void signal_serverError(const QString&);
     void signal_serverStarted();
     void newDataAvaible(const QByteArray&);
+    void signal_databaseOpen ();
+    void signal_dataBaseError(const QString&);
 
 };
 

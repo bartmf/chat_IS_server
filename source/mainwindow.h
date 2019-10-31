@@ -33,6 +33,8 @@ private:
     void netSuccess();
     void auth(const QJsonDocument& doc);
     void registration (const QJsonDocument& doc);
+    void baseSuccess();
+    void baseError(const QString& text);
 
 };
 #endif // MAINWINDOW_H

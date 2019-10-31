@@ -13,6 +13,7 @@
 #include <QThread>
 #include <QList>
 #include <QJsonArray>
+#include <QMap>
 
 namespace commandCode {
     const int auth = 10;
@@ -30,7 +31,7 @@ class session:public QObject
 {
     Q_OBJECT
 
-    int id;
+    int idThisUser;
 public:
     QTcpSocket * client;
 
@@ -42,7 +43,7 @@ public:
     void sendData(const QJsonDocument &data);
     void newData();
     void messages(const QJsonDocument &doc);
-    void roomSend(int id);
+    QJsonObject roomSend(int id, QSqlQuery &);
 
 signals:
     void signal_serverError(const QString&);
