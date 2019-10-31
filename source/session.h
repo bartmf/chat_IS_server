@@ -11,9 +11,9 @@
 #include <QDataStream>
 #include <QByteArray>
 #include <QThread>
-#include <QList>
 #include <QJsonArray>
 #include <QMap>
+#include <QVariantMap>
 
 namespace commandCode {
     const int auth = 10;
@@ -43,7 +43,7 @@ public:
     void sendData(const QJsonDocument &data);
     void newData();
     void messages(const QJsonDocument &doc);
-    QJsonObject roomSend(int id, QSqlQuery &);
+    QJsonObject roomSend(int id, int idRoom = 1);
 
 signals:
     void signal_serverError(const QString&);

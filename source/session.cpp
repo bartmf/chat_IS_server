@@ -43,7 +43,7 @@ void session::auth(const QJsonDocument &doc){
         query.next();
         int idUser = query.value(0).toInt();
         jobj ["id"] = idUser;
-        jobj["rooms"] = roomSend(idUser, query);
+        jobj["rooms"] = roomSend(idUser, query.value(0).toInt());
         qDebug() << "Успешная авторизация!";
         //answer to client commandCode::auth
     }
@@ -64,8 +64,6 @@ void session::registration(const QJsonDocument &doc)
     QString login = doc.object()["login"].toString();
     QString password = doc.object()["password"].toString();
     QString name = doc.object()["name"].toString();
-    QString id;
-    QList <QString> listRooms;
 
 
     query.exec(QString("SELECT id FROM users"
@@ -87,7 +85,7 @@ void session::registration(const QJsonDocument &doc)
                 query.next();
                 int idUser = query.value(0).toInt();
                 jobj ["id"] = idUser;
-                jobj["rooms"] = roomSend(idUser, query);
+                jobj["rooms"] = roomSend(idUser);
 
             }
             else{
@@ -100,7 +98,7 @@ void session::registration(const QJsonDocument &doc)
     QJsonDocument json(jobj);
     sendData(json);
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////
 void session::sendData(const QJsonDocument &data)
 {
 
@@ -159,24 +157,63 @@ void session::messages(const QJsonDocument &doc)
 
 }
 
-QJsonObject session::roomSend(int idUser, QSqlQuery & query)
+QJsonObject session::roomSend(int idUser, int idRoom)
 {
-    QMap <QString, QString> mapRooms;
+    QJsonObject  mapRooms;
+    QJsonObject  mapUsersForRoom;
     QJsonObject jobj;
-    QMapIterator<QString, QString> iterMap(mapRooms);
+    QJsonArray arrRooms;
+    QJsonArray arrUsersForRooms;
+    QSqlQuery query;
 
-    query.exec(QString("SELECT id, name FROM room "
-                       "WHERE id = ( SELECT room_id FROM room_users "
-                                    "WHERE user_id = '%1')").arg(idUser));
+
+    //init map for rooms
+    QString queryText = "SELECT room_users.room_id, room.name "
+                       "FROM room_users "
+                       "INNER JOIN room ON room.id = room_users.room_id "
+                       "WHERE room_users.user_id = '%1' ";
+    queryText.arg(idUser);
+    qDebug() << "\n\n queryText: " << queryText << "\n\n";
+    query.exec(queryText);
+
+//    query.exec(QString("SELECT id, name FROM room "
+//                       "WHERE id IN ( SELECT room_id FROM room_users "
+//                                    "WHERE user_id = '%1'").arg(idUser));
+    qDebug() << "\n\nError : " << query.lastError() << "\n\n";
+
     while(query.next()){
         mapRooms [query.value(0).toString()] = query.value(1).toString();
     }
 
-    while(iterMap.hasNext()){
-        iterMap.next();
-        jobj.insert(iterMap.key(), iterMap.value());
+
+//    while(iterMap.hasNext()){
+//        iterMap.next();
+//        jobj.insert(iterMap.key(), iterMap.value());
+//    }
+
+    jobj.insert("rooms", mapRooms);
+
+    //qDebug() << "\n\n Map rooms: " << jobj << "\n\n";
+    //iniciat map for users_room
+    query.exec(QString("SELECT id, name FROM users "
+                       "WHERE id IN (SELECT user_id FROM room_users "
+                       "WHERE room_id = '%1')").arg(idRoom));
+    while(query.next()){
+        mapUsersForRoom [query.value(0).toString()] = query.value(1).toString();
     }
-    qDebug() << "\n\n Map rooms: " << jobj << "\n\n";
+
+    jobj.insert("usersForRoom", mapUsersForRoom);
+
+//    iterMap = QMapIterator <QString, QString> (mapUsersForRoom);
+
+//    while(iterMap.hasNext()){
+//        iterMap.next();
+//        jobj.insert(iterMap.key(), iterMap.value());
+//    }
+
+
+
+ qDebug() << "\n\n Map users: " << jobj << "\n\n";
 
     return jobj;
 
