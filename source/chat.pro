@@ -17,12 +17,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     chatserver.cpp \
+    commandline.cpp \
     main.cpp \
     mainwindow.cpp \
     session.cpp
 
 HEADERS += \
     chatserver.h \
+    commandline.h \
     mainwindow.h \
     session.h
 

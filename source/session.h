@@ -16,15 +16,16 @@
 #include <QVariantMap>
 
 namespace commandCode {
-    const int auth = 10;
     const int reg = 1;
-    const int roomUser = 3;
-    const int roomName = 4;
-    const int invite = 5;
-    const int invalidAduth = 11;
-    const int loginAlreadyUsed = 12;
     const int message = 2;
-    const int dataBaseError = 13;
+    const int roomCreated = 3;
+    const int invite = 5;
+    const int auth = 10;
+    const int invalidAuth = 11;
+    const int loginAlreadyUsed = 12;
+    const int databaseError = 13;
+    const int sendRoomId = 14;
+    const int sendUserId = 15;
 }
 
 class session:public QObject
@@ -32,6 +33,8 @@ class session:public QObject
     Q_OBJECT
 
     int idThisUser;
+    int idThisRoom = 1;
+
 public:
     QTcpSocket * client;
 
@@ -43,7 +46,11 @@ public:
     void sendData(const QJsonDocument &data);
     void newData();
     void messages(const QJsonDocument &doc);
-    QJsonObject roomSend(int id, int idRoom = 1);
+    QJsonObject roomSend(int id);
+    QJsonObject roomUsersSend(int idRoom = 1);
+    void sendRoomOnClick (const QJsonDocument &doc);
+    QJsonObject sendRoomsAdmin (int userId);
+    QJsonObject creatRoom (int userId, QJsonDocument &doc);
 
 signals:
     void signal_serverError(const QString&);
