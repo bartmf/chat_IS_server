@@ -8,7 +8,7 @@ session::session(QTcpSocket * client)
     connect(this, &session::newDataAvaible, this, &session::doCommand);
 }
 
-void session::doCommand(const QJsonDocument &doc)
+void session::doCommand(const QJsonDocument &doc) //modify
 {
 
         int commandCode = doc.object()["commandCode"].toInt();
@@ -26,7 +26,7 @@ void session::doCommand(const QJsonDocument &doc)
         }
 }
 
-void session::auth(const QJsonDocument &doc){
+void session::auth(const QJsonDocument &doc){ //modify
 
     qDebug() << "auth!!" << doc.toJson();
     QString login = doc.object()["login"].toString();
@@ -69,7 +69,6 @@ void session::registration(const QJsonDocument &doc) // добавление ю�
     QString password = doc.object()["password"].toString();
     QString name = doc.object()["name"].toString();
 
-
     query.exec(QString("SELECT id FROM users"
                "WHERE login = %1").arg(login));
 
@@ -79,7 +78,6 @@ void session::registration(const QJsonDocument &doc) // добавление ю�
         //answer to client commandCode::loginAlreadyUsed
     }
     else{
-
             if(query.exec(QString("INSERT INTO users(login, password, name) "
                                   "VALUES ('%1', '%2','%3')").arg(login).arg(password).arg(name))){
                 qDebug() << "Запись успешно добавлена";
@@ -89,14 +87,12 @@ void session::registration(const QJsonDocument &doc) // добавление ю�
                 query.next();
 
                 idThisUser = query.value(0).toInt();
-
                 jobj ["id"] = idThisUser;
-                jobj["rooms"] = roomSend(idThisUser);
+                jobj["rooms"] = roomSend();
                 jobj["users"] = roomUsersSend();
-
             }
             else{
-                jobj ["commandCode"] = commandCode::databaseError;    //answer to client commandCode::dataBaseError
+                jobj ["commandCode"] = commandCode::dataBaseError;    //answer to client commandCode::dataBaseError
                 qDebug() << "\nОшибка создания записи: " << query.lastError().text() << "\n";
 
 
@@ -157,7 +153,7 @@ void session::newData() // приём данных
 
 void session::messages(const QJsonDocument &doc) // отправка сообщений
 {
-    int idRoom = doc.object()["roomId"].toInt();
+    idThisRoom = doc.object()["roomId"].toInt();
     QString name = doc.object()["user"].toString();
     QString message = doc.object()["message"].toString();
 
@@ -167,23 +163,34 @@ void session::messages(const QJsonDocument &doc) // отправка сообщ�
 
 }
 
-QJsonObject session::roomSend(int idUser) // список комнат, в которых состоит пользователь
+QJsonObject session::roomSend() // список комнат, в которых состоит пользователь // доработать! мапу в мапе room{id{admin, name}}
 {
     QJsonObject  mapRooms;
     QJsonObject mapInRoom;
     QSqlQuery query;
+    QSqlQuery queryTwo;
+    QString role;
+
     //init map for rooms
-    query.exec(QString("SELECT room_users.room_id, room.name "
+    query.exec(QString("SELECT room_users.room_id, room.name, room.user_id "
                        "FROM room_users "
                        "INNER JOIN room ON room.id = room_users.room_id "
-                       "WHERE room_users.user_id = '%1' ").arg(idUser));
+                       "WHERE room_users.user_id = '%1' ").arg(idThisUser));
 
     qDebug() << "\n\nError : " << query.lastError() << "\n\n";
     while(query.next()){
-        mapRooms [query.value(0).toString()] = query.value(1).toString();
+        if(query.value(2).toInt() != idThisUser){
+            role = "noAdmin";
+        }
+        else{
+            role = "admin";
+        }
+        mapInRoom [role] = query.value(1).toString();
+        mapRooms [query.value(0).toString()] = mapInRoom;
     }
     return mapRooms;
 }
+
 
 QJsonObject session::roomUsersSend(int idRoom)
 {
@@ -202,37 +209,20 @@ QJsonObject session::roomUsersSend(int idRoom)
  return mapUsersForRoom;
 }
 
-//QJsonObject session::sendRoomsAdmin(int userId) //пакет администратируемых комнат
-//{
-//    QJsonObject  mapRoomsAdmin;
-//    QSqlQuery query;
-//    //init map for rooms
-//    query.exec(QString("SELECT id "
-//                       "FROM room "
-//                       "WHERE user_id = '%1' ").arg(userId));
-
-//    qDebug() << "\n\nError : " << query.lastError() << "\n\n";
-//    while(query.next()){
-//        mapRoomsAdmin [query.value(0).toString()] = query.value(1).toString();
-//    }
-//    return mapRoomsAdmin;
-//}
-
-QJsonObject session::creatRoom(int userId, QJsonDocument &doc) //создание комнаты
+QJsonObject session::creatRoom( QJsonDocument &doc) //создание комнаты commandCode = 3
 {
 
-
-    QString nameRoom;
+    QString nameRoom = doc.object()["name"].toString();
     QSqlQuery query;
     query.exec(QString("INSERT INTO room (name, user_id) "
-                      "VALUES ('%1', '%2' )").arg(nameRoom).arg(userId));
-
+                      "VALUES ('%1', '%2' )").arg(nameRoom).arg(idThisUser));
 
 }
 
 
-void session::sendRoomOnClick(const QJsonDocument &doc) //при клике на комнату
+void session::sendRoomOnClick(const QJsonDocument &doc) //при клике на комнату comandCode = 14
 {
     idThisRoom = doc.object()["roomId"].toInt();
+
 }
 

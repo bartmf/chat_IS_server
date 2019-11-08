@@ -23,7 +23,7 @@ namespace commandCode {
     const int auth = 10;
     const int invalidAuth = 11;
     const int loginAlreadyUsed = 12;
-    const int databaseError = 13;
+    const int dataBaseError = 13;
     const int sendRoomId = 14;
     const int sendUserId = 15;
 }
@@ -46,11 +46,11 @@ public:
     void sendData(const QJsonDocument &data);
     void newData();
     void messages(const QJsonDocument &doc);
-    QJsonObject roomSend(int id);
+    QJsonObject roomSend();
     QJsonObject roomUsersSend(int idRoom = 1);
     void sendRoomOnClick (const QJsonDocument &doc);
-    QJsonObject sendRoomsAdmin (int userId);
-    QJsonObject creatRoom (int userId, QJsonDocument &doc);
+    //QJsonObject sendRoomsAdmin (int userId);
+    QJsonObject creatRoom (QJsonDocument &doc);
 
 signals:
     void signal_serverError(const QString&);
