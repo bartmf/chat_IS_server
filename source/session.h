@@ -50,7 +50,7 @@ public:
     QJsonObject roomUsersSend(int idRoom = 1);
     void sendRoomOnClick (const QJsonDocument &doc);
     //QJsonObject sendRoomsAdmin (int userId);
-    QJsonObject creatRoom (QJsonDocument &doc);
+    void creatRoom (const QJsonDocument &doc);
 
 signals:
     void signal_serverError(const QString&);

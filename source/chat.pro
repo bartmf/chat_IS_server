@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     chatserver.cpp \
+    choiseport.cpp \
     commandline.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -24,11 +25,13 @@ SOURCES += \
 
 HEADERS += \
     chatserver.h \
+    choiseport.h \
     commandline.h \
     mainwindow.h \
     session.h
 
 FORMS += \
+    choiseport.ui \
     mainwindow.ui
 
 # Default rules for deployment.

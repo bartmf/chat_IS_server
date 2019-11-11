@@ -10,7 +10,7 @@ chatServer::chatServer()
 void chatServer::serverStart()
 {
     connectToDB();
-    if (tcpServer->listen(QHostAddress::Any, 5000)) {
+    if (tcpServer->listen(QHostAddress::Any, port)) {
         emit signal_serverStarted();
     }
     else {
@@ -32,7 +32,7 @@ void chatServer::newClient()
 void chatServer::connectToDB()
 {
     Database = QSqlDatabase::addDatabase("QSQLITE");
-    Database.setDatabaseName ("//home/bart/Документы/GitHub/chat_IS_server/db/chat.db"); //("C:\\Users\\User\\Documents\\GitHub\\chat_IS_server\\db\\chat.db");
+    Database.setDatabaseName ("C:\\Users\\User\\Documents\\GitHub\\chat_IS_server\\db\\chat.db"); //("//home/bart/Документы/GitHub/chat_IS_server/db/chat.db"); //
 
     if (!Database.open())
     {

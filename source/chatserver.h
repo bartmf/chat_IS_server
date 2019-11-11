@@ -16,6 +16,7 @@
 class chatServer: public QObject
 {
     Q_OBJECT
+    quint16 port = 5000;
 public:
     QList <session*> listSessions;
     chatServer();
