@@ -41,3 +41,17 @@ void MainWindow::baseError(const QString &text)
     ui->teStatus->insertPlainText("Ошибка подкючения к СУБД: " + text + "\n");
 }
 
+
+void MainWindow::on_actionExit_triggered()
+{
+    MainWindow::close();
+}
+
+
+
+void MainWindow::on_actionNew_connect_triggered()
+{
+    choisePort * choise = new choisePort();
+    choise->show();
+
+}

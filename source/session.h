@@ -45,12 +45,14 @@ public:
     void registration(const QJsonDocument &doc);
     void sendData(const QJsonDocument &data);
     void newData();
-    void messages(const QJsonDocument &doc);
-    QJsonObject roomSend();
-    QJsonObject roomUsersSend(int idRoom = 1);
+    void newMessag(const QJsonDocument &doc);
+    QJsonObject sendRoom();
+    QJsonObject SendRoomUsers(int idRoom = 1);
     void sendRoomOnClick (const QJsonDocument &doc);
     //QJsonObject sendRoomsAdmin (int userId);
     void creatRoom (const QJsonDocument &doc);
+    void sendHistoryMessage();
+
 
 signals:
     void signal_serverError(const QString&);

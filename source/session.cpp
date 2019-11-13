@@ -19,7 +19,7 @@ void session::doCommand(const QJsonDocument &doc) //modify
             break;
             case commandCode::reg: registration(doc);
             break;
-            case commandCode::message: messages(doc);
+            case commandCode::message: newMessag(doc);
             break;
              case commandCode::roomCreated: creatRoom(doc);
             break;
@@ -48,8 +48,8 @@ void session::auth(const QJsonDocument &doc){ //modify
         //query.next();
         idThisUser = query.value(0).toInt();
         jobj ["id"] = idThisUser;
-        jobj["rooms"] = roomSend();
-        jobj["users"] = roomUsersSend();
+        jobj["rooms"] = sendRoom();
+        jobj["users"] = SendRoomUsers();
 
 
 // send to room
@@ -61,13 +61,9 @@ void session::auth(const QJsonDocument &doc){ //modify
         jobj ["commandCode"] = commandCode::invalidAuth;
        //answer commandCode::invalidAduth
     }
-
     QJsonDocument json(jobj);
     sendData(json);
-
 }
-
-
 
 void session::registration(const QJsonDocument &doc) // добавление юзера в СУБД + возврат комнат и его ID
 {
@@ -97,14 +93,12 @@ void session::registration(const QJsonDocument &doc) // добавление ю�
 
                 idThisUser = query.value(0).toInt();
                 jobj ["id"] = idThisUser;
-                jobj["rooms"] = roomSend();
-                jobj["users"] = roomUsersSend();
+                jobj["rooms"] = sendRoom();
+                jobj["users"] = SendRoomUsers();
             }
             else{
                 jobj ["commandCode"] = commandCode::dataBaseError;    //answer to client commandCode::dataBaseError
                 qDebug() << "\nОшибка создания записи: " << query.lastError().text() << "\n";
-
-
             }
     }
     QJsonDocument json(jobj);
@@ -113,7 +107,6 @@ void session::registration(const QJsonDocument &doc) // добавление ю�
 
 void session::sendData(const QJsonDocument &data) // Отправка данных
 {
-
         qint32 packageSize = data.toJson().length();
         QByteArray buffer;
         QDataStream stream(&buffer, QIODevice::ReadWrite);
@@ -129,11 +122,9 @@ void session::sendData(const QJsonDocument &data) // Отправка данны
 
 void session::newData() // приём данных
 {
-
         if (client->bytesAvailable() < 4) {
         return;
         }
-
     quint32 packageSize;
     QByteArray buffer(client->read(4));
     QDataStream stream(buffer);
@@ -160,22 +151,10 @@ void session::newData() // приём данных
     emit newDataAvaible(json);
 }
 
-void session::messages(const QJsonDocument &doc) // отправка сообщений
-{
-    idThisRoom = doc.object()["roomId"].toInt();
-    QString name = doc.object()["user"].toString();
-    QString message = doc.object()["message"].toString();
-
-
-
-
-
-}
-
-QJsonObject session::roomSend() // список комнат, в которых состоит пользователь // доработать! мапу в мапе room{id{admin, name}}
+QJsonObject session::sendRoom() // список комнат, в которых состоит пользователь
 {
     QJsonObject  mapRooms;
-    QJsonObject mapInRoom;
+
     QSqlQuery query;
     QString role;
 
@@ -187,14 +166,19 @@ QJsonObject session::roomSend() // список комнат, в которых 
 
     qDebug() << "\n\nError : " << query.lastError() << "\n" << query.lastQuery() << "\n\n";
     while(query.next()){
+        QJsonObject mapInRoom;
         if(query.value(2).toInt() != idThisUser){
-            role = "noAdmin";
+            role = "0";//no admin
         }
         else{
-            role = "admin";
+            role = "1"; // admin
         }
-        mapInRoom [role] = query.value(1).toString();
+        qDebug() << "Exec value " << query.value(1).toString();
+
+        mapInRoom["isAdmin"] = role;
+        mapInRoom["name"] = query.value(1).toString();
         mapRooms [query.value(0).toString()] = mapInRoom;
+        qDebug()<< "Map In Room: " << mapInRoom << "\n";
     }
      qDebug() << "MAP for rooms" << mapRooms << "\n";
 
@@ -203,7 +187,7 @@ QJsonObject session::roomSend() // список комнат, в которых 
 
 
 
-QJsonObject session::roomUsersSend(int idRoom)
+QJsonObject session::SendRoomUsers(int idRoom)
 {
     QJsonObject  mapUsersForRoom;
     QSqlQuery query;
@@ -223,12 +207,32 @@ QJsonObject session::roomUsersSend(int idRoom)
 void session::creatRoom(const QJsonDocument &doc) //создание комнаты commandCode = 3 // отправить id room
 {
 
-    QString nameRoom = doc.object()["name"].toString();
+    QString nameRoom = doc.object()["roomName"].toString();
     QSqlQuery query;
     QJsonObject jobject;
-    query.exec(QString("INSERT INTO room (name, user_id) "
-                      "VALUES ('%1', '%2' )").arg(nameRoom).arg(idThisUser));
-    roomSend();
+
+    if(query.exec(QString("INSERT INTO room (name, user_id) "
+                      "VALUES ('%1', '%2' )").arg(nameRoom).arg(idThisUser))){
+        jobject ["commandCode"] = commandCode::roomCreated;
+        jobject ["rooms"] = sendRoom();
+        jobject ["users"] = SendRoomUsers();
+    }
+    else {
+        jobject ["commandCode"] = commandCode::dataBaseError;
+        qDebug() << "Error create room" << "\n";
+    }
+
+    QJsonDocument jdoc(jobject);
+    sendData(jdoc);
+}
+
+void session::sendHistoryMessage()
+{
+    QSqlQuery query;
+    if(query.exec(QString("SELECT message "))){
+
+    }
+
 
 }
 
@@ -239,9 +243,23 @@ void session::sendRoomOnClick(const QJsonDocument &doc) //при клике на
 
     idThisRoom = doc.object()["roomId"].toInt();
     jobj ["commandCode"] = commandCode::sendRoomId;
-    jobj["users"] = roomUsersSend(idThisRoom);
+    jobj["users"] = SendRoomUsers(idThisRoom);
 
     QJsonDocument jdoc (jobj);
     sendData(jdoc);
 }
 
+void session::newMessag(const QJsonDocument &doc) // отправка сообщений // in work
+{
+    QSqlQuery query;
+    QString text = doc.object()["text"].toString();
+
+    if(query.exec(QString("INSERT INTO messages (user_id, room_id, text)"
+                       "VALUES ('%1', '%2', '%3') ").arg(idThisUser).arg(idThisRoom).arg(text))){
+        qDebug() << "Creat Message is luck!\n";
+    }
+    else{
+        qDebug() << "Creat Message error" << query.lastError() << "\n";
+    }
+
+}

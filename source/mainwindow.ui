@@ -97,13 +97,25 @@
    <property name="text">
     <string>New connect</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
    </property>
+   <property name="shortcut">
+    <string>Shift+Esc</string>
+   </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>pbStartServer</tabstop>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>teStatus</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
