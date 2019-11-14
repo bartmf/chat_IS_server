@@ -1,6 +1,5 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
 #include "chatserver.h"
 #include <QJsonDocument>
@@ -8,6 +7,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include "choiseport.h"
+#include "commandline.h"
 
 
 
@@ -33,6 +33,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     chatServer* server;
+    CommandLine * commandLine;
 
 private:
     void netError(const QString& text);

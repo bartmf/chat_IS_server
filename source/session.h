@@ -40,6 +40,7 @@ public:
 
 public:
     session(QTcpSocket * client);
+private:
     void doCommand(const QJsonDocument &doc);
     void auth(const QJsonDocument &doc);
     void registration(const QJsonDocument &doc);
@@ -49,7 +50,6 @@ public:
     QJsonObject sendRoom();
     QJsonObject SendRoomUsers(int idRoom = 1);
     void sendRoomOnClick (const QJsonDocument &doc);
-    //QJsonObject sendRoomsAdmin (int userId);
     void creatRoom (const QJsonDocument &doc);
     void sendHistoryMessage();
 

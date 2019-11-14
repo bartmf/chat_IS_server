@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(server, &chatServer::signal_databaseOpen, this, &MainWindow::baseSuccess);
     connect(server, &chatServer::signal_serverError, this, &MainWindow::baseError);
     connect(ui->pbStartServer, &QPushButton::clicked, server, &chatServer::serverStart);
+    //connect(ui->pushB, & );
 }
 
 MainWindow::~MainWindow()
