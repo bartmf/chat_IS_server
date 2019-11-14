@@ -32,19 +32,21 @@ class session:public QObject
 {
     Q_OBJECT
 
+
+
+public:
+    QTcpSocket * client;
     int idThisUser;
     int idThisRoom = 1;
 
 public:
-    QTcpSocket * client;
-
-public:
     session(QTcpSocket * client);
+    void sendMessage(const QJsonDocument &doc);
+    void sendData(const QJsonDocument &data);
 private:
     void doCommand(const QJsonDocument &doc);
     void auth(const QJsonDocument &doc);
     void registration(const QJsonDocument &doc);
-    void sendData(const QJsonDocument &data);
     void newData();
     void newMessag(const QJsonDocument &doc);
     QJsonObject sendRoom();
@@ -54,10 +56,12 @@ private:
     void sendHistoryMessage();
 
 
+
 signals:
     void signal_serverError(const QString&);
     void signal_serverStarted();
     void newDataAvaible(const QJsonDocument&);
+    void signal_newMessage(const QJsonDocument&);
 
 };
 

@@ -5,6 +5,7 @@ chatServer::chatServer()
 {
     tcpServer = new QTcpServer(); //наш класс - экземпляр класса QTcpServer
     connect(tcpServer, &QTcpServer::newConnection, this, &chatServer::newClient);
+
 }
 
 void chatServer::serverStart()
@@ -25,6 +26,7 @@ void chatServer::newClient()
     QTcpSocket * socket = tcpServer->nextPendingConnection();
 
     session * newSession = new session(socket);
+    connect(newSession, &session::signal_newMessage, this, &chatServer::newMess);
     qDebug() << "New connect!!!\n";
     listSessions.push_back(newSession);
 }
@@ -43,5 +45,19 @@ void chatServer::connectToDB()
     {
         qDebug() << "CONNECTED TO DB!!";
         emit signal_databaseOpen();
+    }
+}
+
+void chatServer::newMess(const QJsonDocument &doc)
+{
+    int idRoom = doc.object()["idRoom"].toInt();
+
+    foreach(session * thisSession, listSessions){
+        if(thisSession->idThisRoom == idRoom){
+            thisSession->sendData(doc);
+        }
+        else{
+            qDebug() << "Что то пошло не так!!!\n";
+        }
     }
 }

@@ -28,6 +28,7 @@ public:
 private:
     QTcpServer* tcpServer; //наш класс от класса QTcpServer
     QSqlDatabase Database;
+    void newMess(const QJsonDocument &doc);
 
 
 signals:

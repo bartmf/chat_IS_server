@@ -10,9 +10,9 @@ session::session(QTcpSocket * client)
 
 void session::doCommand(const QJsonDocument &doc) //modify
 {
-
+        qDebug() << "Command string pack " << doc.toJson() << "\n";
         int commandCode = doc.object()["commandCode"].toInt();
-        qDebug() << doc.object()["commandCode"].toString();
+        //qDebug() << doc.object()["commandCode"].toString();
 
         switch (commandCode) {
             case commandCode::auth: auth(doc);
@@ -61,6 +61,7 @@ void session::auth(const QJsonDocument &doc){ //modify
         jobj ["commandCode"] = commandCode::invalidAuth;
        //answer commandCode::invalidAduth
     }
+   // sendHistoryMessage();
     QJsonDocument json(jobj);
     sendData(json);
 }
@@ -101,6 +102,7 @@ void session::registration(const QJsonDocument &doc) // добавление ю�
                 qDebug() << "\nОшибка создания записи: " << query.lastError().text() << "\n";
             }
     }
+    //sendHistoryMessage();
     QJsonDocument json(jobj);
     sendData(json);
 }
@@ -144,7 +146,7 @@ void session::newData() // приём данных
     buffer.remove(0, 4);
 //    QString str;
 //    stream >> str;
-    //QString str(buffer);
+//QString str(buffer);
 
     QJsonDocument json = QJsonDocument::fromJson(buffer);
     qDebug() << "Read:\n" << buffer << "\n" << packageSize << "\n" << json.toJson() << "\nReadOver\n\n";
@@ -226,17 +228,6 @@ void session::creatRoom(const QJsonDocument &doc) //создание комна�
     sendData(jdoc);
 }
 
-void session::sendHistoryMessage()
-{
-    QSqlQuery query;
-    if(query.exec(QString("SELECT message "))){
-
-    }
-
-
-}
-
-
 void session::sendRoomOnClick(const QJsonDocument &doc) //при клике на комнату comandCode = 14
 {
     QJsonObject jobj;
@@ -252,7 +243,7 @@ void session::sendRoomOnClick(const QJsonDocument &doc) //при клике на
 void session::newMessag(const QJsonDocument &doc) // отправка сообщений // in work
 {
     QSqlQuery query;
-    QString text = doc.object()["text"].toString();
+    QString text = doc.object()["message"].toString();
 
     if(query.exec(QString("INSERT INTO messages (user_id, room_id, text)"
                        "VALUES ('%1', '%2', '%3') ").arg(idThisUser).arg(idThisRoom).arg(text))){
@@ -261,5 +252,22 @@ void session::newMessag(const QJsonDocument &doc) // отправка сообщ
     else{
         qDebug() << "Creat Message error" << query.lastError() << "\n";
     }
+    doc.object()["idRoom"] = idThisRoom;
+    emit signal_newMessage(doc);
+}
+
+void session::sendMessage(const QJsonDocument &doc)
+{
+
+    QSqlQuery query;
+    if(query.exec(QString("SELECT  "))){
+
+    }
+
+    sendData(doc);
+}
+
+void session::sendHistoryMessage()
+{
 
 }
