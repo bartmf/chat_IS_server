@@ -54,5 +54,6 @@ void MainWindow::on_actionNew_connect_triggered()
 {
     choisePort * choise = new choisePort();
     choise->show();
+    connect(choise , &choisePort::signalToChaingePort, server, &chatServer::chaingePort);
 
 }

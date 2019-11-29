@@ -2,6 +2,7 @@
 #define CHOISEPORT_H
 
 #include <QDialog>
+#include <QMessageBox>
 
 namespace Ui {
 class choisePort;
@@ -15,6 +16,15 @@ public:
     explicit choisePort(QWidget *parent = nullptr);
     ~choisePort();
 
+
+
+private slots:
+    void on_pushButtonCancel_clicked();
+
+    void on_pushButtonOk_clicked();
+
+signals:
+    void signalToChaingePort(quint16);
 private:
     Ui::choisePort *ui;
 };

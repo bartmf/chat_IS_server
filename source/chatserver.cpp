@@ -34,7 +34,7 @@ void chatServer::newClient()
 void chatServer::connectToDB()
 {
     Database = QSqlDatabase::addDatabase("QSQLITE");
-    Database.setDatabaseName ("C:\\Users\\User\\Documents\\GitHub\\chat_IS_server\\db\\chat.db"); //("//home/bart/Документы/GitHub/chat_IS_server/db/chat.db"); //
+    Database.setDatabaseName ("//home/bart/Документы/GitHub/chat_IS_server/db/chat.db"); //("C:\\Users\\User\\Documents\\GitHub\\chat_IS_server\\db\\chat.db");
 
     if (!Database.open())
     {
@@ -48,12 +48,18 @@ void chatServer::connectToDB()
     }
 }
 
+void chatServer::chaingePort(quint16 port16)
+{
+    port = port16;
+}
+
 void chatServer::newMess(const QJsonDocument &doc)
 {
     int idRoom = doc.object()["idRoom"].toInt();
 
     foreach(session * thisSession, listSessions){
         if(thisSession->idThisRoom == idRoom){
+            qDebug() << "Send message is look \n";
             thisSession->sendData(doc);
         }
         else{

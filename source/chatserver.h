@@ -9,13 +9,14 @@
 #include <QDataStream>
 #include <QSqlError>
 #include "session.h"
-
+#include "choiseport.h"
 
 
 
 class chatServer: public QObject
 {
     Q_OBJECT
+protected:
     quint16 port = 5000;
 public:
     QList <session*> listSessions;
@@ -24,6 +25,7 @@ public:
     void newClient();
     void newData();
     void connectToDB();
+    void chaingePort(quint16);
 
 private:
     QTcpServer* tcpServer; //наш класс от класса QTcpServer
