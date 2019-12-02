@@ -34,7 +34,7 @@ void chatServer::newClient()
 void chatServer::connectToDB()
 {
     Database = QSqlDatabase::addDatabase("QSQLITE");
-    Database.setDatabaseName ("//home/bart/Documents/GitHub/chat_IS_server/db/chat.db"); //("C:\\Users\\User\\Documents\\GitHub\\chat_IS_server\\db\\chat.db");
+    Database.setDatabaseName ("C:\\Users\\User\\Documents\\GitHub\\chat_IS_server\\db\\chat.db"); //;("//home/bart/Documents/GitHub/chat_IS_server/db/chat.db")
 
     if (!Database.open())
     {
@@ -65,8 +65,6 @@ void chatServer::newMess(const QJsonDocument &doc)
         }
         else{
             qDebug() << "Что то пошло не так!!!\n";
-            doc.object()["message"] = "херово";
-            thisSession->sendData(doc);
         }
     }
 }

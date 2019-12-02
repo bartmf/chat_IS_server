@@ -189,7 +189,7 @@ QJsonObject session::sendRoom() // список комнат, в которых 
 
 
 
-QJsonObject session::SendRoomUsers(int idRoom)
+QJsonObject session::SendRoomUsers(int idRoom) //список юзеров комнаты
 {
     QJsonObject  mapUsersForRoom;
     QSqlQuery query;
@@ -254,8 +254,14 @@ void session::newMessag(const QJsonDocument &doc) // отправка сообщ
     else{
         qDebug() << "Creat Message error" << query.lastError() << "\n";
     }
-    doc.object()["idRoom"] = idThisRoom;
-    emit signal_newMessage(doc);
+    jobj["commandCode"] = doc.object()["commandCode"];
+    jobj["idUser"] = idThisUser;
+    jobj["message"] = text;
+    jobj["idRoom"] = idThisRoom;
+    QJsonDocument docOut(jobj);
+
+
+    emit signal_newMessage(docOut);
 }
 
 void session::sendMessage(const QJsonDocument &doc)
@@ -281,7 +287,5 @@ void session::sendInviteToRoom(const QJsonDocument &doc)
     QString idRoom = doc.object()["roomId"].toString();
     if(query.exec(QString("ISERT INTO room_users (room_id, user_id)"
                           "VALUES ('%1', '%2') ").arg(idUser).arg(idRoom))){
-
     }
-
 }
