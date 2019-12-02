@@ -54,6 +54,7 @@ private:
     void sendRoomOnClick (const QJsonDocument &doc);
     void creatRoom (const QJsonDocument &doc);
     void sendHistoryMessage();
+    void sendInviteToRoom (const QJsonDocument &doc);
 
 
 

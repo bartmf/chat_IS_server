@@ -243,6 +243,8 @@ void session::sendRoomOnClick(const QJsonDocument &doc) //при клике на
 void session::newMessag(const QJsonDocument &doc) // отправка сообщений // in work
 {
     QSqlQuery query;
+    QJsonObject jobj;
+
     QString text = doc.object()["message"].toString();
 
     if(query.exec(QString("INSERT INTO messages (user_id, room_id, text)"
@@ -269,5 +271,17 @@ void session::sendMessage(const QJsonDocument &doc)
 
 void session::sendHistoryMessage()
 {
+
+}
+
+void session::sendInviteToRoom(const QJsonDocument &doc)
+{
+    QSqlQuery query;
+    QString idUser = doc.object()["userId"].toString();
+    QString idRoom = doc.object()["roomId"].toString();
+    if(query.exec(QString("ISERT INTO room_users (room_id, user_id)"
+                          "VALUES ('%1', '%2') ").arg(idUser).arg(idRoom))){
+
+    }
 
 }
